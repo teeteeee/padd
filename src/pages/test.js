@@ -12,8 +12,6 @@ const spinAnimation = keyframes`
   }
 `;
 
-
-
 // Styled component for the loading spinner
 const LoadingSpinner = styled.div`
   display: inline-block;
@@ -28,157 +26,67 @@ const LoadingSpinner = styled.div`
 
 const ChatBot = () => {
     const [input, setInput] = useState('');
-    const [conversation, setConversation] = useState([]);      
-    const conversationEndRef = useRef(null); // to make the view to be going up accordingly
-    const [counter, setCounter] = useState(0); // Update initial counter value to 0
+  const [conversation, setConversation] = useState([]);
+  const conversationEndRef = useRef(null); // to make the view to be going up accordingly
 
+  const [message, setMessage] = useState(null);
 
-    const handleInput = () => {
-        const newMessage = { user: input, response: getDesiredResponse(counter), isLoading: true };
-        setConversation([...conversation, newMessage]);
-      
-        setInput('');
-      
-        // Increment the counter to move to the next response
-        setCounter((prevCounter) => prevCounter + 1);
-
-        setTimeout(() => {
-            setConversation((prevConversation) => {
-            const updatedConversation = [...prevConversation];
-            const messageIndex = updatedConversation.length - 1;
-            updatedConversation[messageIndex].response = getDesiredResponse(counter);
-            updatedConversation[messageIndex].isLoading = false;
-            return updatedConversation;
-            });
-        }, 2000);
-        };
-
-    const getDesiredResponse = (counter) => {
-        switch (counter) {
-            case 0: // Update case from 1 to 0
-                return (
-                <Typography>
-                    We have a great selection of moisturizing lotions. Can you tell me more about your skin type?
-                </Typography>
-                );
-            case 1: // Update case from 2 to 1
-                return (
-                    <Typography>
-                        Thank you for the information. I recommend our Sensitive Skin Hydrating Lotion. It's free from artificial fragrances and colors, and packed with natural oils to moisturize your skin. Would you like more information about this product?
-                    </Typography>
-                );
-            case 2: // Update case from 3 to 2return 'Sure, see below response';
-                return (
-                    <div>
-                        <Typography>
-                            The Sensitive Skin Hydrating Lotion is hypoallergenic and dermatologist-tested. It's formulated to be gentle and non-irritating for sensitive skin. Would you like to try it?';
-                        </Typography>
-                        <div>
-                        <div class="tab-pane show active" id="chat-media-images" tabindex="0">
-                                        <div class="row g-3">
-                                            <div class="col-4">
-                                                <a href="images/gallery/chat/cetaphil.jpg" class="glightbox tyn-thumb" data-gallery="media-photo">
-                                                    <img src="images/gallery/chat/cetaphil.jpg" class="tyn-image" alt=""/>
-                                                </a>
-                                            </div>
-                                            
-                                            
-                                            
-                                        </div>
-                                    </div>
-                        {/* <img src="https://www.cerave.com/-/media/project/loreal/brand-sites/cerave/americas/us/products-v3/daily-moisturizing-lotion/700x875/cerave_daily_moisturizing_lotion_12oz_front-700x875-v2.jpg?rev=c1f482b619984b46bd02512590f52dfc&w=500&hash=C099A94A2D66592D4A3463FD54357452" alt="Product Image" /> */}
-                    </div>
-                   </div>
-                );
-            case 4:
-                return (
-                    <Typography>
-                        Great! The Sensitive Skin Hydrating Lotion has been added to your cart. Do you need anything else for your skincare routine? Perhaps a face wash or a sunscreen?';
-                    </Typography>
-                );
-            case 3:
-                return (
-                    <div>
-                    <Typography>
-                        Sure, see below 
-                    </Typography>
-                    <br />
-                    <Typography>
-                        Tessy: 4.5/5.0 
-                    </Typography>
-                        <Typography>
-                        I love this product.
-                    </Typography>
-                    <br />
-                    <Typography>
-                        Fred: 5.0/5.0
-                    </Typography>
-                    <Typography>
-                        Worked perfectly as expected 
-                    </Typography> 
-                    <br />
-                    <Typography>
-                        You can also <a href="/reviews">click here</a> to see more reviews
-                    </Typography>
-                    </div>
-                );
-            case 5: // Update case from 3 to 2return 'Sure, see below response';
-                return (
-                    <Typography>
-                        Our Gentle Cleansing Face Wash is designed for sensitive skin. It helps to remove impurities without drying out your skin. Would you like to add this to your cart as well?
-                    </Typography>
-                );
-            case 6:
-                return (
-                    <Typography>
-                        Wonderful, I've added the Gentle Cleansing Face Wash to your cart. You're all set for checkout or feel free to continue shopping!
-                    </Typography>
-                );
-            case 7: // Update case from 3 to 2return 'Sure, see below response';
-                return (
-                    <Typography>
-                        Great! Let's head to the checkout. I'll guide you through the process
-                    </Typography>
-                );
-            case 8:
-                return (
-                    <Typography>
-                        Sure, I can facilitate reordering of both the Lotion and Face Wash every month. Is there a specific day of the month you want them placed?
-                    </Typography>
-                );
-            case 9:
-                return (
-                    <Typography>
-                        Great! Would you like to check out now?
-                    </Typography>
-                );
-            case 10: // Update case from 3 to 2return 'Sure, see below response';
-                return (
-                    <Typography>
-                        Kindly complete the checkout using the Google Pay that will be pop out.
-                    </Typography>
-                );
-            case 11:
-                return (
-                    <Typography>
-                        Thanks, your items will be delivered to you on April 30th. How often would you like me to send you shipping status update?
-                    </Typography>
-                );
-            default:
-            return (
-                <Typography>Sorry, i can't give you a response at this time.</Typography>
-                );
-        }
-    };
-
-  const handleClick = () => {
-    handleInput();
+  const getDesiredResponse = async (input) => {
+    try {
+      const rawResponse = await fetch("http://localhost:80/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          input,
+        }),
+      });
+  
+      const data = await rawResponse.json();
+      console.log(data);
+      setMessage(data.choices[0].message)
+      return responseData.message;
+    } catch (error) {
+      console.error('Error fetching API response:', error);
+      return 'Sorry, there was an error fetching the response.';
+    }
   };
 
 
-  useEffect(() => {
-    conversationEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [conversation]);  
+
+  
+
+  const handleInput = async () => {
+    const newMessage = { user: input, response: getDesiredResponse(), isLoading: true };
+    setConversation([...conversation, newMessage]);
+
+    setInput('');
+
+    const response = await getDesiredResponse();
+
+    setTimeout(() => {
+      setConversation((prevConversation) => {
+        const updatedConversation = [...prevConversation];
+        const messageIndex = updatedConversation.length - 1;
+        updatedConversation[messageIndex].response = response;
+        updatedConversation[messageIndex].isLoading = false;
+        return updatedConversation;
+      });
+    }, 2000);
+  };
+
+  
+  
+
+    const handleClick = () => {
+      handleInput();
+    };
+  
+    useEffect(() => {
+      conversationEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, [conversation]);
+  
   
    
         return(
@@ -792,7 +700,7 @@ const ChatBot = () => {
                                                 </circle>
                                                 </svg>                    
                                             ) : (
-                                                <p>{message.response}</p>
+                                                <p>{getDesiredResponse(message.user)}</p>
                                             )}
                                         </div>                                        
                                     </div>
@@ -815,13 +723,14 @@ const ChatBot = () => {
                       />    
                         </div>                        
                         <ul className="tyn-list-inline me-n2 my-1">
-                            <li><button className="btn btn-icon btn-white btn-md btn-pill" onClick={handleClick}>
-                                    
+                            <li>
+                                <button className="btn btn-icon btn-white btn-md btn-pill" onClick={handleClick}>                                    
                                     {/* <!-- send-fill --> */}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-send-fill" viewBox="0 0 16 16">
                                         <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z" />
                                     </svg>
-                                </button></li>
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </div>

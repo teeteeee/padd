@@ -1569,7 +1569,7 @@ dl {
 .tyn-qa-message {
   padding: 0.25rem 0;
   flex-grow: 0;
-  width: calc(100% - 50px);
+  /* width: calc(100% - 50px); */
 }
 
 .tyn-qa {
